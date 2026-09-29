@@ -1,4 +1,4 @@
-### MediCare - Clinic Management System
+##### MediCare - Clinic Management System
 
 A robust and comprehensive web-based Clinic Management System designed to streamline patient records, medical history tracking,
 and appointment workflows efficiently. Built using modern backend and web development technologies.
