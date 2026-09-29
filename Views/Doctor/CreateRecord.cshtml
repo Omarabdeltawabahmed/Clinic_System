@@ -1,0 +1,132 @@
+﻿@model Clinic_System.Models.MedicalRecord
+
+@{
+    ViewData["Title"] = "Create Medical Record";
+    var history = ViewBag.PatientHistory as List<Clinic_System.Models.MedicalRecord>;
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+
+            <!-- Header Section with Title & AI Button -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold text-primary mb-0">📋 Consultation & Medical Record</h4>
+
+                <button type="button" class="btn btn-purple border-0 text-white fw-bold shadow-sm rounded-pill px-3" style="background-color: #6f42c1;" onclick="getAiSummary(@ViewBag.PatientId)">
+                    ✨ AI Patient History Summary
+                </button>
+            </div>
+
+            <!-- AI Summary Result Box -->
+            <div id="aiSummaryBox" class="alert alert-info d-none my-3 shadow-sm rounded-3" style="white-space: pre-line; border-right: 5px solid #6f42c1;">
+                <strong class="d-block mb-2 text-dark">📋 AI Summary:</strong>
+                <p id="aiSummaryText" class="mb-0 text-secondary"></p>
+            </div>
+
+            <!-- Past Medical History Accordion -->
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-secondary text-white py-2 rounded-top-4 d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">📜 Past Medical History (@(history?.Count ?? 0) Visits)</h6>
+                </div>
+                <div class="card-body p-3" style="max-height: 300px; overflow-y: auto;">
+                    @if (history != null && history.Any())
+                    {
+                        <div class="accordion" id="historyAccordion">
+                            @for (int i = 0; i < history.Count; i++)
+                            {
+                                var rec = history[i];
+                                <div class="accordion-item mb-2 border rounded-3 overflow-hidden">
+                                    <h2 class="accordion-header" id="heading-@rec.Id">
+                                        <button class="accordion-button collapsed py-2 text-dark fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-@rec.Id">
+                                            🏥 Visit #@(history.Count - i) - @(rec.Appointment?.AppointmentDate.ToString("yyyy-MM-dd HH:mm") ?? "Previous Visit")
+                                        </button>
+                                    </h2>
+                                    <div id="collapse-@rec.Id" class="accordion-collapse collapse" data-bs-parent="#historyAccordion">
+                                        <div class="accordion-body bg-light">
+                                            <p class="mb-1"><strong>Complaint:</strong> @rec.Complaint</p>
+                                            <p class="mb-1"><strong>Diagnosis:</strong> @rec.Diagnosis</p>
+                                            <p class="mb-0"><strong>Prescription:</strong> @rec.Prescription</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0 text-center py-2">No previous medical records found for this patient.</p>
+                    }
+                </div>
+            </div>
+
+            <!-- Form for Adding Current Visit Record -->
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-header bg-primary text-white py-3 rounded-top-4">
+                    <h5 class="fw-bold mb-0">✍️ Current Visit Record for: <strong class="text-warning">@ViewBag.PatientName</strong></h5>
+                </div>
+                <div class="card-body p-4">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <form asp-action="CreateRecord" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="AppointmentId" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Patient Complaint</label>
+                            <textarea asp-for="Complaint" class="form-control" rows="2" placeholder="Enter patient complaint..."></textarea>
+                            <span asp-validation-for="Complaint" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Diagnosis / Case Details</label>
+                            <textarea asp-for="Diagnosis" class="form-control" rows="3" placeholder="Enter diagnosis notes..."></textarea>
+                            <span asp-validation-for="Diagnosis" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Prescription / Treatment Plan</label>
+                            <textarea asp-for="Prescription" class="form-control" rows="4" placeholder="Write prescription / medicine instructions..."></textarea>
+                            <span asp-validation-for="Prescription" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Attachment (X-Ray, Lab Report, etc.)</label>
+                            <input type="file" name="attachment" class="form-control" />
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2">
+                            <a asp-action="Index" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                            <button type="submit" class="btn btn-success rounded-pill px-4 fw-semibold">Save & Complete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        async function getAiSummary(patientId) {
+            if (!patientId || patientId === 0) {
+                alert("No patient ID associated with this visit to summarize records.");
+                return;
+            }
+
+            const box = document.getElementById('aiSummaryBox');
+            const text = document.getElementById('aiSummaryText');
+
+            box.classList.remove('d-none');
+            text.innerText = "⏳ Reading previous records and generating AI summary...";
+
+            try {
+                const response = await fetch(`/Doctor/GetPatientSummary?patientId=${patientId}`);
+                const data = await response.json();
+                text.innerText = data.summary;
+            } catch (error) {
+                text.innerText = "❌ An error occurred while communicating with the AI server.";
+            }
+        }
+    </script>
+}

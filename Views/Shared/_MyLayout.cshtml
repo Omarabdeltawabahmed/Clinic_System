@@ -1,0 +1,183 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>@ViewData["Title"] - Clinic Management System</title>
+
+    <!-- Favicons -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%230d6efd'><path d='M7.5 1v2a3.5 3.5 0 0 0-7 0v2a1 1 0 0 0 2 0V3a1.5 1.5 0 0 1 3 0v2a1 1 0 0 0 2 0V1h-.5zm7 4.5A2.5 2.5 0 0 0 12 3a.5.5 0 0 0 0 1 1.5 1.5 0 0 1 1.5 1.5v3a3.5 3.5 0 0 1-7 0v-1a.5.5 0 0 0-1 0v1a4.5 4.5 0 0 0 9 0v-3z'/><circle cx='11.5' cy='11.5' r='1.5'/></svg>" type="image/svg+xml">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="~/assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="~/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+    <!-- Main CSS File -->
+    <link href="~/assets/css/main.css" rel="stylesheet">
+
+    <style>
+            body {
+                background: linear-gradient(135deg, rgba(248, 250, 252, 0.85) 0%, rgba(224, 231, 255, 0.8) 100%), url('/assets/img/bg/background.jpg') no-repeat center center fixed !important;
+                background-size: cover !important;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* ضبط المسافة بين القائمة والمحتوى لتجنب تغطية الـ Fixed Header للمحتوى */
+            main.main {
+                flex: 1 0 auto;
+                padding-top: 140px !important;
+            }
+
+            footer, footer * {
+                background: transparent !important;
+                border: none !important;
+            }
+
+            .navmenu a,
+            .navmenu a:focus {
+                font-size: 15px !important;
+                font-weight: 600 !important;
+            }
+
+            /* تنسيق الـ Topbar للـ Identity */
+            .topbar {
+                padding: 8px 0;
+            }
+    </style>
+</head>
+<body class="index-page">
+
+    <header id="header" class="header fixed-top">
+
+        <!-- Top Bar -->
+        <div class="topbar d-flex align-items-center dark-background">
+            <div class="container d-flex align-items-center">
+
+                <!-- إضافة ms-auto هنا لدفع العناصر لأقصى اليمين -->
+                <div class="auth-links d-flex align-items-center ms-auto">
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </div>
+        <!-- End Top Bar -->
+
+        <div class="branding d-flex align-items-center">
+            <div class="container position-relative d-flex align-items-center justify-content-between">
+
+                <a asp-controller="Home" asp-action="Index" class="logo d-flex align-items-center text-decoration-none">
+                    <h1 class="sitename mb-0">Clinic</h1>
+                </a>
+
+                <nav id="navmenu" class="navmenu">
+                    @{
+                        var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+                    }
+
+                    <ul>
+                        <!-- روابط عامة متاحة لجميع المستخدمين -->
+                        <li>
+                            <a asp-controller="Home" asp-action="Index" class="@(currentController == "Home" ? "active" : "")">Home</a>
+                        </li>
+
+                        <li>
+                            <a asp-controller="Specialties" asp-action="Index" class="@(currentController == "Specialties" ? "active" : "")">Specialties</a>
+                        </li>
+
+                        <li>
+                            <a asp-controller="Doctors" asp-action="Index" class="@(currentController == "Doctors" ? "active" : "")">Doctors</a>
+                        </li>
+
+                        <li>
+                            <a asp-controller="WorkingHours" asp-action="Index" class="@(currentController == "WorkingHours" ? "active" : "")">Working Hours</a>
+                        </li>
+
+                        <li>
+                            <a asp-controller="Appointments" asp-action="MyAppointments" class="@(currentController == "Appointments" ? "active" : "")">MyAppointments</a>
+                        </li>
+
+                        <!-- خاص بـ Doctor و Admin فقط -->
+                        @if (User.IsInRole("Admin") || User.IsInRole("Doctor"))
+                        {
+                            <li>
+                                <a asp-controller="Doctor" asp-action="Index" class="@(currentController == "Doctor" ? "active" : "")">Doctor Portal</a>
+                            </li>
+                            <li>
+                                <a asp-controller="DoctorLeaves" asp-action="Index" class="@(currentController == "DoctorLeaves" ? "active" : "")">Leaves</a>
+                            </li>
+                        }
+
+                        <!-- خاص بـ Receptionist و Admin فقط -->
+                        @if (User.IsInRole("Admin") || User.IsInRole("Receptionist"))
+                        {
+                            <li>
+                                <a asp-controller="Reception" asp-action="Index" class="@(currentController == "Reception" ? "active" : "")">Reception Desk</a>
+                            </li>
+                        }
+
+                        <!-- خاص بـ Admin فقط -->
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <li>
+                                <a asp-controller="Reports" asp-action="Index" class="@(currentController == "Reports" ? "active" : "")">Reports</a>
+                            </li>
+                        }
+                        
+                    </ul>
+
+                    <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+                </nav>
+
+            </div>
+        </div>
+
+    </header>
+
+    <main class="main">
+        <div class="container mb-5">
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer id="footer" class="footer-16 footer position-relative">
+        <div class="footer-bottom">
+            <div class="container">
+                <div class="bottom-content">
+                    <div class="row align-items-center">
+                        <div class="col-lg-6">
+                            <div class="copyright">
+                                <p style="font-size: 1.1rem;">&copy; <span class="sitename">Clinic</span>. All rights reserved @DateTime.Now.Year.</p>                           
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scroll Top -->
+    <a href="#!" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Vendor JS Files -->
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/vendor/aos/aos.js"></script>
+    <script src="~/assets/vendor/glightbox/js/glightbox.min.js"></script>
+    <script src="~/assets/vendor/purecounter/purecounter_vanilla.js"></script>
+    <script src="~/assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+    <!-- Main JS File -->
+    <script src="~/assets/js/main.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

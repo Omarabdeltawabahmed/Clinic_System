@@ -1,0 +1,115 @@
+﻿@model IEnumerable<Clinic_System.Models.Doctor>
+
+@{
+    ViewData["Title"] = "Doctors Management";
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold text-primary mb-1">Doctors Management</h3>
+            <p class="text-muted mb-0">Manage all medical doctors and their clinical details.</p>
+        </div>
+        @if (User.IsInRole("Admin"))
+        {
+            <a asp-action="Create" class="btn btn-primary rounded-pill px-4 shadow-sm">
+                <i class="bi bi-person-plus me-1"></i> Add New Doctor
+            </a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+            <div class="py-4">
+                <i class="bi bi-person-badge display-4 text-muted mb-3 d-block"></i>
+                <h5 class="text-dark fw-bold">No doctors added yet.</h5>
+                <p class="text-muted">Get started by adding your first medical expert to the system.</p>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 p-4 bg-white position-relative d-flex flex-column justify-content-between">
+
+                        <!-- Top Section: Picture & Name -->
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                @if (!string.IsNullOrEmpty(item.ProfilePictureUrl))
+                                {
+                                    <img src="@item.ProfilePictureUrl"
+                                         alt="@item.Name"
+                                         class="rounded-circle border shadow-sm"
+                                         width="65"
+                                         height="65"
+                                         style="object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle bg-light text-primary d-flex align-items-center justify-content-center fw-bold border shadow-sm"
+                                         style="width: 65px; height: 65px; min-width: 65px; font-size: 1.5rem;">
+                                        @(string.IsNullOrEmpty(item.Name) ? "D" : item.Name.Substring(0, 1).ToUpper())
+                                    </div>
+                                }
+
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-1">@item.Name</h5>
+                                    <span class="badge bg-primary-subtle text-primary border border-primary-subtle rounded-pill px-3 py-1 fw-semibold">
+                                        @(item.Specialty != null ? item.Specialty.Name : "N/A")
+                                    </span>
+                                </div>
+                            </div>
+
+                            <hr class="text-muted opacity-10 my-3">
+
+                            <!-- Details Section (Contact, Salary, Fee) -->
+                            <div class="small mb-3">
+                                <div class="mb-2 text-secondary">
+                                    <i class="bi bi-envelope text-primary me-2"></i> @item.Email
+                                </div>
+                                <div class="mb-2 text-secondary">
+                                    <i class="bi bi-telephone text-primary me-2"></i> @item.Phone
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top border-light">
+                                    <span class="text-muted">Salary:</span>
+                                    <span class="fw-bold text-dark">$@($"{item.Salary:N0}")</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <span class="text-muted">Consultation Fee:</span>
+                                    <span class="fw-bold text-success">$@($"{item.Fee:N2}")</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer Actions (For Admin) -->
+                        @if (User.IsInRole("Admin"))
+                        {
+                            <div class="pt-3 border-top border-light d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">ID: #@item.Id</small>
+                                <div class="d-flex gap-2">
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning rounded-circle shadow-sm" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger rounded-circle shadow-sm" style="width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="pt-3 border-top border-light d-flex justify-content-between align-items-center mt-2">
+                                <small class="text-muted">ID: #@item.Id</small>
+                            </div>
+                        }
+
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
